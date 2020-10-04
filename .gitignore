@@ -1,0 +1,9 @@
+.snakemake/*
+scripts/__pycache__
+borrar*
+ORF_calling/*
+Functional_annotation/*
+.ipynb_checkpoint*
+summary_table*
+gggenes_plots/*
+
