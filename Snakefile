@@ -8,17 +8,15 @@ import sys
 DEPENDENCIES:
     - trnascan2
     - infernal
-    - checkv
-
 TODO:
-    - trnascan2.0 dependency (which version is in conda?)
+    -
 '''
 
 
-input_genomes = glob.glob("../genomes_fasta/*fasta")
+input_genomes = glob.glob("genomes_fasta/*fasta")
 genomes_id    = [os.path.basename(genome).replace(".fasta", "") for genome in input_genomes]
 input_path    = os.path.dirname(input_genomes[0])
-scripts_path  = os.path.abspath("/home/dani/programs/PhageAnnotation_devel/PhageAnnotation/scripts")
+scripts_path  = os.path.abspath("/home/dani/programs/developments/PhageAnnotation/scripts")
 sys.path.append(scripts_path)
 import process_phanotate
 import process_prodigal
@@ -32,13 +30,14 @@ phanotate_extensions = [".tab", ".faa", ".fna" ]
 callers = ["phanotate", "prodigal-11", "prodigal-TAG", "prodigal-TGA"]
 
 pVOG_database_path   = "/home/dani/programs/databases/AllvogHMMprofiles/all_pVOGs.hmm"
-pVOG_functional_info = "/home/dani/programs/PhageAnnotation_devel/PhageAnnotation/files/pvogs_annotations.tsv"
+pVOG_functional_info = "/home/dani/programs/developments/PhageAnnotation/files/pvogs_annotations.tsv"
 
 
 
 rule all:
     input:
-        "summary_table_0.txt",
+        "genomes_lengths.txt",
+        "coding_statistics.txt",
         expand("ORF_calling/prodigal-11/{genome}_prodigal-11{ext}", genome=genomes_id, ext=prodigal_extensions),
         expand("ORF_calling/prodigal-TAG/{genome}_prodigal-TAG{ext}", genome=genomes_id, ext=prodigal_extensions),
         expand("ORF_calling/prodigal-TGA/{genome}_prodigal-TGA{ext}", genome=genomes_id, ext=prodigal_extensions),
@@ -55,7 +54,7 @@ rule all:
 
 rule get_genome_lengths:
     input: input_genomes
-    output: "summary_table_0.txt"
+    output: "genomes_lengths.txt"
     threads: 1
     run:
         with open(output[0], "w") as fout:
@@ -76,7 +75,7 @@ rule run_prodigal_11:
                  ".faa",
                  ".fna"
                  )
-    threads: 1
+    threads: 2
     params: prodigal_path
     shell:
         "{params} -f gff -p meta -i {input} -o {output.gff} -a {output.fasta[0]} -d {output.fasta[1]}"
@@ -89,7 +88,7 @@ rule run_prodigal_TAG:
                  ".faa",
                  ".fna"
                  )
-    threads: 1
+    threads: 2
     params: prodigal_path
     shell:
         "{params} -f gff -p meta -i {input} -o {output.gff} -a {output.fasta[0]} -d {output.fasta[1]} -TAG Q"
@@ -102,7 +101,7 @@ rule run_prodigal_TGA:
                  ".faa",
                  ".fna"
                  )
-    threads: 1
+    threads: 2
     params: prodigal_path
     shell:
         "{params} -f gff -p meta -i {input} -o {output.gff} -a {output.fasta[0]} -d {output.fasta[1]} -TGA W"
@@ -110,7 +109,7 @@ rule run_prodigal_TGA:
 rule run_phanotate:
     input: input_path + "/{genome}.fasta"
     output: "ORF_calling/phanotate/{genome}_phanotate.tab"
-    threads: 1
+    threads: 2
     params: phanotate_path
     shell:
         "{params} -o {output} {input}"
@@ -146,7 +145,7 @@ rule prodigal_headers:
 rule run_tRNAscan2:
     input: input_path + "/{genome}.fasta"
     output: "ORF_calling/tRNAscan/{genome}.trna"
-    threads: 1
+    threads: 2
     shell:
         "tRNAscan-SE -B -o {output} {input}"
 
@@ -192,17 +191,19 @@ rule parse_pVOG:
 rule gggenes_plots:
     input: expand("Functional_annotation/VOG/genes_tables/{{genome}}_{caller}.genestbl", caller=callers)
     output: "gggenes_plots/{genome}.png"
-    threads: 1
+    threads: 2
     script:
-        "/home/dani/programs/PhageAnnotation_devel/PhageAnnotation/scripts/plot_gggenes.R"
+        "/home/dani/programs/developments/PhageAnnotation/scripts/plot_gggenes.R"
 
-
-
-
-
-# rule genes_statistics:
-#     input: expand("ORF_calling/{caller}/genes_tables/{genome}_{caller}.genestbl")
-#     output: "summary_table_1"
-#     threads:1
-#     run:
-#         tables.
+rule compute_coding_statistics:
+    input:
+        tables  = expand("Functional_annotation/VOG/genes_tables/{genome}_{caller}.genestbl", genome=genomes_id, caller=callers),
+        lengths ="genomes_lengths.txt"
+    output: "coding_statistics.txt"
+    threads: 4
+    run:
+        tables.coding_statistics(
+                                 input.tables,
+                                 input.lengths,
+                                 output[0]
+                                )

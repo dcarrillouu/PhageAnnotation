@@ -3,7 +3,6 @@
 plot_ORF_callers_annot <- function(phanot, prod11, prodTAG, prodTGA, outfigure) {
   library(gggenes)
   library(ggplot2)
-  library(dplyr)
   
   data1 <- read.csv(phanot, header = T, sep = "\t", check.names = F)  
   data2 <- read.csv(prod11, header = T, sep = "\t", check.names = F)  
@@ -15,14 +14,19 @@ plot_ORF_callers_annot <- function(phanot, prod11, prodTAG, prodTGA, outfigure) 
   
   data %>% filter(caller == "tRNAscan-SE") %>% arrange(caller)
   
+ 
   a <-ggplot(data, aes(xmin = start, xmax = end, y = caller, forward = direction, fill = VOG_annot)) +
-    geom_gene_arrow(show.legend = F) +
+    geom_gene_arrow() +
     facet_wrap(~ caller, scales = "free", ncol = 1) +
-    #scale_fill_brewer(palette = "Set3") +
-    theme_genes()
+    #scale_fill_brewer() +
+    theme_genes() +
+    theme(legend.text = element_text(color = "gray13", size = 8),
+          legend.position = "bottom",
+          legend.direction = "horizontal")
+    
   
   
-  ggsave(outfigure, a)
+  ggsave(outfigure, a, height= 10, width= 30, units = "cm")
   
   
 }

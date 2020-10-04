@@ -6,4 +6,5 @@ Functional_annotation/*
 .ipynb_checkpoint*
 summary_table*
 gggenes_plots/*
-
+coding_statistics.txt
+genomes_lengths.txt
