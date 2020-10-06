@@ -4,6 +4,7 @@
 '''
 
 '''
+
 from Bio import SeqIO
 import pandas as pd
 import numpy as np
@@ -11,12 +12,10 @@ import multiprocessing
 from functools import partial
 import os
 
+
 def calculate_statistics(genomes_lengths, genes_file):
-    #print(genes_file)
+    print(genes_file)
     # read genes_table for the genome
-    # print(genes_file)
-    # print(str(genes_file))
-    # print(os.path.abspath(genes_file))
     table = pd.read_csv(genes_file, header=0, sep="\t")
 
     # separate according to types and count
@@ -26,8 +25,8 @@ def calculate_statistics(genomes_lengths, genes_file):
     n_trna = trna.shape[0]
 
     # get genome_id and caller
-    genome_id = table["genome"][0]
-    caller    = table["caller"].value_counts().idxmax()
+    genome_id = cds["genome"][0]
+    caller    = cds["caller"][0]
 
     # compute coding length, only cds. It colapses overlaping ORFs in the same
     # interval
@@ -61,27 +60,3 @@ def calculate_statistics(genomes_lengths, genes_file):
           ]
 
     return tow
-
-
-
-
-def coding_statistics(tables_genes, lengths_file, output_file):
-    lines = [line.strip().split("\t") for line in open(lengths_file).readlines()]
-    lengths = {line[0]:line[1] for line in lines}
-
-    # func = partial(calculate_statistics, lengths)
-    # pool = multiprocessing.Pool(processes=3)
-    # lines_calculated = pool.map(func, tables_genes)
-    # pool.close()
-    # pool.join()
-
-    # with open(output_file, "w") as fout:
-    #     for line in lines_calculated:
-    #         fout.write("{}\n".format("\t".join(line)))
-
-
-    with open(output_file, "w") as fout:
-        for table in tables_genes:
-            print(table)
-            tow = calculate_statistics(lengths, table)
-            fout.write("{}\n".format("\t".join(tow)))

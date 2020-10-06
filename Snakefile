@@ -13,24 +13,25 @@ TODO:
 '''
 
 
-input_genomes = glob.glob("genomes_fasta/*fasta")
+input_genomes = glob.glob("/home/danielc/projects/Bas_phages/1_processing/non-redundant_genomes/*fasta")
 genomes_id    = [os.path.basename(genome).replace(".fasta", "") for genome in input_genomes]
 input_path    = os.path.dirname(input_genomes[0])
-scripts_path  = os.path.abspath("/home/dani/programs/developments/PhageAnnotation/scripts")
+scripts_path  = os.path.abspath("/home/danielc/software/developments/PhageAnnotation/scripts")
 sys.path.append(scripts_path)
 import process_phanotate
 import process_prodigal
 import tables
 import pVOG
+import tables2
 
-prodigal_path  = "/home/dani/programs/software.prodigal/tmp.prodigal/code.prodigal/prodigal"
-phanotate_path = "/home/dani/programs/PHANOTATE/phanotate.py"
+prodigal_path  = "/home/danielc/projects/Bas_phages/tmp.prodigal/code.prodigal/prodigal"
+phanotate_path = "/home/danielc/software/PHANOTATE/phanotate.py"
 prodigal_extensions  = [".gff", ".faa", ".fna"]
 phanotate_extensions = [".tab", ".faa", ".fna" ]
 callers = ["phanotate", "prodigal-11", "prodigal-TAG", "prodigal-TGA"]
 
-pVOG_database_path   = "/home/dani/programs/databases/AllvogHMMprofiles/all_pVOGs.hmm"
-pVOG_functional_info = "/home/dani/programs/developments/PhageAnnotation/files/pvogs_annotations.tsv"
+pVOG_database_path   = "/home/danielc/software/databases/AllvogHMMprofiles/all_pVOGs.hmm"
+pVOG_functional_info = "/home/danielc/software/developments/PhageAnnotation/files/pvogs_annotations.tsv"
 
 
 
@@ -46,7 +47,7 @@ rule all:
         expand("ORF_calling/{caller}/genes_tables/{genome}_{caller}.genestbl", caller=callers, genome=genomes_id),
         expand("Functional_annotation/VOG/{genome}_{caller}.tablvog", caller=callers, genome=genomes_id),
         expand("Functional_annotation/VOG/genes_tables/{genome}_{caller}.genestbl", caller=callers, genome=genomes_id),
-        expand("gggenes_plots/{genome}.png", genome=genomes_id)
+        #expand("gggenes_plots/{genome}.png", genome=genomes_id)
 
 
 
@@ -63,6 +64,7 @@ rule get_genome_lengths:
                 length = len(record.seq)
 
                 fout.write(f'{record.id}\t{length}\n')
+
 
 # rule check_circular:
 #     input: input: input_path + "/{genome}.fasta"
@@ -157,7 +159,7 @@ rule genes_tables:
     threads: 1
     params: "{genome}", "{caller}"
     run:
-        tables.genes2table(
+        tables2.genes2table(
                            input[0],
                            input[1],
                            output[0],
@@ -193,12 +195,12 @@ rule gggenes_plots:
     output: "gggenes_plots/{genome}.png"
     threads: 2
     script:
-        "/home/dani/programs/developments/PhageAnnotation/scripts/plot_gggenes.R"
+        "/home/danielc/software/developments/PhageAnnotation/scripts/plot_gggenes.R"
 
 rule compute_coding_statistics:
     input:
         tables  = expand("Functional_annotation/VOG/genes_tables/{genome}_{caller}.genestbl", genome=genomes_id, caller=callers),
-        lengths ="genomes_lengths.txt"
+        lengths = "genomes_lengths.txt"
     output: "coding_statistics.txt"
     threads: 4
     run:
