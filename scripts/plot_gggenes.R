@@ -4,7 +4,8 @@ plot_ORF_callers_annot <- function(phanot, prod11, prodTAG, prodTGA, outfigure) 
   library(gggenes)
   library(ggplot2)
   library(dplyr)
-  
+  library(randomcoloR)  
+
   data1 <- read.csv(phanot, header = T, sep = "\t", na.strings=c("","NA")) 
   data2 <- read.csv(prod11, header = T, sep = "\t", na.strings=c("","NA")) 
   data3 <- read.csv(prodTAG, header = T, sep = "\t", na.strings=c("","NA")) 

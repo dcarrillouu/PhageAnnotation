@@ -47,7 +47,7 @@ rule all:
         expand("ORF_calling/{caller}/genes_tables/{genome}_{caller}.genestbl", caller=callers, genome=genomes_id),
         expand("Functional_annotation/VOG/{genome}_{caller}.tablvog", caller=callers, genome=genomes_id),
         expand("Functional_annotation/VOG/genes_tables/{genome}_{caller}.genestbl", caller=callers, genome=genomes_id),
-        #expand("gggenes_plots/{genome}.png", genome=genomes_id)
+        expand("gggenes_plots/{genome}.png", genome=genomes_id)
 
 
 
@@ -80,7 +80,7 @@ rule run_prodigal_11:
     threads: 2
     params: prodigal_path
     shell:
-        "{params} -f gff -p meta -i {input} -o {output.gff} -a {output.fasta[0]} -d {output.fasta[1]}"
+        "{params} -f gff -g 11 {input} -o {output.gff} -a {output.fasta[0]} -d {output.fasta[1]}"
 
 rule run_prodigal_TAG:
     input: input_path + "/{genome}.fasta"
@@ -93,7 +93,7 @@ rule run_prodigal_TAG:
     threads: 2
     params: prodigal_path
     shell:
-        "{params} -f gff -p meta -i {input} -o {output.gff} -a {output.fasta[0]} -d {output.fasta[1]} -TAG Q"
+        "{params} -f gff -g 11 -i {input} -o {output.gff} -a {output.fasta[0]} -d {output.fasta[1]} -TAG Q"
 
 rule run_prodigal_TGA:
     input: input_path + "/{genome}.fasta"
@@ -106,7 +106,7 @@ rule run_prodigal_TGA:
     threads: 2
     params: prodigal_path
     shell:
-        "{params} -f gff -p meta -i {input} -o {output.gff} -a {output.fasta[0]} -d {output.fasta[1]} -TGA W"
+        "{params} -f gff -g 11 -i {input} -o {output.gff} -a {output.fasta[0]} -d {output.fasta[1]} -TGA W"
 
 rule run_phanotate:
     input: input_path + "/{genome}.fasta"
