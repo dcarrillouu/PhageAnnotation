@@ -9,7 +9,8 @@ DEPENDENCIES:
     - trnascan2
     - infernal
 TODO:
-    -
+    - Implement length detection and running of prodigal -p meta when length < 20Kb
+    - tRNA filter bitscore 35: is failing right now
 '''
 
 
@@ -25,7 +26,7 @@ import pVOG
 import tables2
 
 prodigal_path  = "/home/danielc/projects/Bas_phages/tmp.prodigal/code.prodigal/prodigal"
-phanotate_path = "/home/danielc/software/PHANOTATE/phanotate.py"
+phanotate_path = "/home/danielc/software/developments/external_tools/PHANOTATE/phanotate.py"
 prodigal_extensions  = [".gff", ".faa", ".fna"]
 phanotate_extensions = [".tab", ".faa", ".fna" ]
 callers = ["phanotate", "prodigal-11", "prodigal-TAG", "prodigal-TGA"]
@@ -80,7 +81,7 @@ rule run_prodigal_11:
     threads: 2
     params: prodigal_path
     shell:
-        "{params} -f gff -g 11 {input} -o {output.gff} -a {output.fasta[0]} -d {output.fasta[1]}"
+        "{params} -f gff -g 11 -i {input} -o {output.gff} -a {output.fasta[0]} -d {output.fasta[1]}"
 
 rule run_prodigal_TAG:
     input: input_path + "/{genome}.fasta"

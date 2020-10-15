@@ -47,6 +47,7 @@ def genes2table(fasta_cds, trna_file, outable, genome, caller):
     # don't strip() so the 'notes' column is preserved when empty
     lines = [line.split("\t") for line in open(trna_file).readlines()[3:]]
     for line in lines:
+        print(line)
         # Bitscore filter >35
         if float(line[-2]) >= 35:
 
