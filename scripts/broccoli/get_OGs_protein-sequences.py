@@ -43,7 +43,7 @@ def extract_sequences_OG(fasta_big_file, out_dir, og):
     og_id = og[0]
     proteins = og[1].split(" ")
     tmp_file = f"{out_dir}/{og_id}.tmp"
-    out_file = f"{out_dir}/{og_id}.fasta"
+    out_file = f"{out_dir}/{og_id}.faa"
     with open(tmp_file, "w") as tmp_out:
         for protein in proteins:
             tmp_out.write(f"{protein}\n")

@@ -1,10 +1,13 @@
 '''
-This scripts takes the genome annotation table and adds OG and taxa information.
+This scripts takes the genome annotation and adds OG information.
 Previous stage to plotting with gggenes. The table format is similat to that I
 generated to compare variant callers.
 
 The input is the directory with all the .faa, one per genome. And the file
 "table_OGs_protein_names.txt" from Broccoli step3
+
+IMPROVEMENTS:
+    - Add taxa information
 '''
 
 import argparse
@@ -24,7 +27,7 @@ def parse_args():
     requiredArgs.add_argument('-i', '--input_faa_directory',
                                dest='in_dir',
                                required=True,
-                               help='File "table_OGs_protein_counts.txt" from step3'
+                               help='directory with final annotation .faa file for each genome'
                                )
     requiredArgs.add_argument('-o', '--output_dir',
                                dest='out_dir',
@@ -108,7 +111,7 @@ def main():
     # create partial function
     part = partial(genome_to_table, OG_annot, args.out_dir)
 
-    pool = multiprocessing.Pool(processes=60)
+    pool = multiprocessing.Pool(processes=10)
     shared_content = pool.map(part, faa_files)
     pool.close()
     pool.join()

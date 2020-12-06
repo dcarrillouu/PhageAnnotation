@@ -40,15 +40,15 @@ rule all:
     input:
         "genomes_lengths.txt",
         "coding_statistics.txt",
-        expand("ORF_calling/prodigal-11/{genome}_prodigal-11{ext}", genome=genomes_id, ext=prodigal_extensions),
-        expand("ORF_calling/prodigal-TAG/{genome}_prodigal-TAG{ext}", genome=genomes_id, ext=prodigal_extensions),
-        expand("ORF_calling/prodigal-TGA/{genome}_prodigal-TGA{ext}", genome=genomes_id, ext=prodigal_extensions),
-        expand("ORF_calling/phanotate/{genome}_phanotate{ext}", genome=genomes_id, ext=phanotate_extensions),
-        expand("ORF_calling/tRNAscan/{genome}.trna", genome=genomes_id),
-        expand("ORF_calling/{caller}/genes_tables/{genome}_{caller}.genestbl", caller=callers, genome=genomes_id),
-        expand("Functional_annotation/VOG/{genome}_{caller}.tablvog", caller=callers, genome=genomes_id),
-        expand("Functional_annotation/VOG/genes_tables/{genome}_{caller}.genestbl", caller=callers, genome=genomes_id),
-        expand("gggenes_plots/{genome}.png", genome=genomes_id)
+        expand("2_ORF_calling/prodigal-11/{genome}_prodigal-11{ext}", genome=genomes_id, ext=prodigal_extensions),
+        expand("2_ORF_calling/prodigal-TAG/{genome}_prodigal-TAG{ext}", genome=genomes_id, ext=prodigal_extensions),
+        expand("2_ORF_calling/prodigal-TGA/{genome}_prodigal-TGA{ext}", genome=genomes_id, ext=prodigal_extensions),
+        expand("2_ORF_calling/phanotate/{genome}_phanotate{ext}", genome=genomes_id, ext=phanotate_extensions),
+        expand("2_ORF_calling/tRNAscan/{genome}.trna", genome=genomes_id),
+        expand("2_ORF_calling/{caller}/genes_tables/{genome}_{caller}.genestbl", caller=callers, genome=genomes_id)
+        #expand("Functional_annotation/VOG/{genome}_{caller}.tablvog", caller=callers, genome=genomes_id),
+        #expand("Functional_annotation/VOG/genes_tables/{genome}_{caller}.genestbl", caller=callers, genome=genomes_id),
+        #expand("gggenes_plots/{genome}.png", genome=genomes_id)
 
 
 
@@ -73,8 +73,8 @@ rule get_genome_lengths:
 rule run_prodigal_11:
     input: input_path + "/{genome}.fasta"
     output:
-        gff   = "ORF_calling/prodigal-11/{genome}_prodigal-11.gff",
-        fasta = multiext("ORF_calling/tmp/{genome}_prodigal-11",
+        gff   = "2_ORF_calling/prodigal-11/{genome}_prodigal-11.gff",
+        fasta = multiext("2_ORF_calling/tmp/{genome}_prodigal-11",
                  ".faa",
                  ".fna"
                  )
@@ -86,8 +86,8 @@ rule run_prodigal_11:
 rule run_prodigal_TAG:
     input: input_path + "/{genome}.fasta"
     output:
-        gff   = "ORF_calling/prodigal-TAG/{genome}_prodigal-TAG.gff",
-        fasta = multiext("ORF_calling/tmp/{genome}_prodigal-TAG",
+        gff   = "2_ORF_calling/prodigal-TAG/{genome}_prodigal-TAG.gff",
+        fasta = multiext("2_ORF_calling/tmp/{genome}_prodigal-TAG",
                  ".faa",
                  ".fna"
                  )
@@ -99,8 +99,8 @@ rule run_prodigal_TAG:
 rule run_prodigal_TGA:
     input: input_path + "/{genome}.fasta"
     output:
-        gff   = "ORF_calling/prodigal-TGA/{genome}_prodigal-TGA.gff",
-        fasta = multiext("ORF_calling/tmp/{genome}_prodigal-TGA",
+        gff   = "2_ORF_calling/prodigal-TGA/{genome}_prodigal-TGA.gff",
+        fasta = multiext("2_ORF_calling/tmp/{genome}_prodigal-TGA",
                  ".faa",
                  ".fna"
                  )
@@ -111,7 +111,7 @@ rule run_prodigal_TGA:
 
 rule run_phanotate:
     input: input_path + "/{genome}.fasta"
-    output: "ORF_calling/phanotate/{genome}_phanotate.tab"
+    output: "2_ORF_calling/phanotate/{genome}_phanotate.tab"
     threads: 2
     params: phanotate_path
     shell:
@@ -119,10 +119,10 @@ rule run_phanotate:
 
 rule phanotate_ORF_sequences:
     input:
-        table  = "ORF_calling/phanotate/{genome}_phanotate.tab",
+        table  = "2_ORF_calling/phanotate/{genome}_phanotate.tab",
         genome = input_path + "/{genome}.fasta"
     output:
-        multiext("ORF_calling/phanotate/{genome}_phanotate",
+        multiext("2_ORF_calling/phanotate/{genome}_phanotate",
                  ".faa",
                  ".fna"
                  )
@@ -134,8 +134,8 @@ rule phanotate_ORF_sequences:
                                                )
 
 rule prodigal_headers:
-    input:  "ORF_calling/tmp/{genome}_prodigal-{mode}.{extension}"
-    output: "ORF_calling/prodigal-{mode}/{genome}_prodigal-{mode}.{extension}"
+    input:  "2_ORF_calling/tmp/{genome}_prodigal-{mode}.{extension}"
+    output: "2_ORF_calling/prodigal-{mode}/{genome}_prodigal-{mode}.{extension}"
     params: "{mode}"
     threads: 1
     run:
@@ -147,16 +147,16 @@ rule prodigal_headers:
 
 rule run_tRNAscan2:
     input: input_path + "/{genome}.fasta"
-    output: "ORF_calling/tRNAscan/{genome}.trna"
+    output: "2_ORF_calling/tRNAscan/{genome}.trna"
     threads: 2
     shell:
         "tRNAscan-SE -B -o {output} {input}"
 
 rule genes_tables:
     input:
-        "ORF_calling/{caller}/{genome}_{caller}.faa",
-        "ORF_calling/tRNAscan/{genome}.trna"
-    output: "ORF_calling/{caller}/genes_tables/{genome}_{caller}.genestbl"
+        "2_ORF_calling/{caller}/{genome}_{caller}.faa",
+        "2_ORF_calling/tRNAscan/{genome}.trna"
+    output: "2_ORF_calling/{caller}/genes_tables/{genome}_{caller}.genestbl"
     threads: 1
     params: "{genome}", "{caller}"
     run:
@@ -169,7 +169,7 @@ rule genes_tables:
                           )
 
 rule hmmsearch_pVOG:
-    input: "ORF_calling/{caller}/{genome}_{caller}.faa", pVOG_database_path
+    input: "2_ORF_calling/{caller}/{genome}_{caller}.faa", pVOG_database_path
     output: "Functional_annotation/VOG/{genome}_{caller}.tablvog",
             "Functional_annotation/VOG/{genome}_{caller}.vog"
     threads: 2
@@ -180,7 +180,7 @@ rule parse_pVOG:
     input:
         "Functional_annotation/VOG/{genome}_{caller}.tablvog",
         pVOG_functional_info,
-        "ORF_calling/{caller}/genes_tables/{genome}_{caller}.genestbl"
+        "2_ORF_calling/{caller}/genes_tables/{genome}_{caller}.genestbl"
     output:
         "Functional_annotation/VOG/genes_tables/{genome}_{caller}.genestbl"
     threads: 1
@@ -198,9 +198,18 @@ rule gggenes_plots:
     script:
         "/home/danielc/software/developments/PhageAnnotation/scripts/plot_gggenes.R"
 
+
+rule copy_genes_tables:
+    input:
+        tables = "2_ORF_calling/{caller}/genes_tables/{genome}_{caller}.genestbl"
+    output:
+        out = "2_ORF_calling/genes_tables/{genome}_{caller}.genestbl"
+    shell:
+        "cp {input.tables} {output}"
+
 rule compute_coding_statistics:
     input:
-        tables  = expand("Functional_annotation/VOG/genes_tables/{genome}_{caller}.genestbl", genome=genomes_id, caller=callers),
+        tables  = expand("2_ORF_calling/genes_tables/{genome}_{caller}.genestbl", genome=genomes_id, caller=callers),
         lengths = "genomes_lengths.txt"
     output: "coding_statistics.txt"
     threads: 4
